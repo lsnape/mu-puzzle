@@ -10,8 +10,8 @@
                  [ring/ring-core "1.2.0"]
                  [compojure "1.1.6"]
                  [hiccup "1.0.5"]
-
-                 [prismatic/dommy "0.1.2"]
+                 
+                 [jarohen/flow "0.2.0-SNAPSHOT"]
 
                  [org.clojure/clojurescript "0.0-2234"]
                  [org.clojure/core.async "0.1.303.0-886421-alpha"]]
