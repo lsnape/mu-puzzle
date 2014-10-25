@@ -1,23 +1,25 @@
 (defproject mu-puzzle ""
 
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "A game based on Douglas Hofstadter's MU puzzle in GEB"
+  :url ""
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0-alpha2"]
 
                  [ring/ring-core "1.2.0"]
                  [compojure "1.1.6"]
                  [hiccup "1.0.5"]
-                 
-                 [jarohen/flow "0.2.0-SNAPSHOT"]
+                 [medley "0.5.0"]
 
-                 [org.clojure/clojurescript "0.0-2234"]
-                 [org.clojure/core.async "0.1.303.0-886421-alpha"]]
+                 [prismatic/om-tools "0.3.6"]
+                 [sablono "0.2.22"]
+
+                 [org.clojure/clojurescript "0.0-2371"]
+                 [org.clojure/core.async "0.1.303.0-886421-alpha"]
+                 [om "0.8.0-alpha1"]]
 
   :plugins [[jarohen/lein-frodo "0.3.2"]
-            [jarohen/simple-brepl "0.1.1"]
             [lein-cljsbuild "1.0.3"]
             [lein-pdo "0.1.1"]
 
@@ -42,12 +44,9 @@
                        {:source-paths ["ui-src" "target/generated/cljs"]
                         :compiler {:output-to "target/resources/js/mu-puzzle.js"
                                    :output-dir "target/resources/js/"
-                                   :optimizations :whitespace
-                                   :pretty-print true
-
-                                   ;; uncomment for source-maps
-                                        ; :source-map "target/resources/js/mu-puzzle.js.map"
-                                   }}
+                                   :optimizations :none
+                                   :source-map "target/resources/js/mu-puzzle.js.map"
+                                   :pretty-print true}}
 
                        :prod
                        {:source-paths ["ui-src" "target/generated/cljs"]

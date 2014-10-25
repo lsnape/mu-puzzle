@@ -1,25 +1,26 @@
 (ns mu-puzzle.service.handler
-  (:require [ring.util.response :refer [response]]
-            [compojure.core :refer [routes GET]]
-            [compojure.route :refer [resources]]
+  (:require [compojure.core :refer [routes GET]]
             [compojure.handler :refer [api]]
-            [hiccup.page :refer [html5 include-css include-js]]
+            [compojure.route :refer [resources]]
             [frodo.web :refer [App]]
-            [simple-brepl.service :refer [brepl-js]]))
+            [hiccup.page :refer [html5 include-css include-js]]
+            [ring.util.response :refer [response]]))
 
 (defn page-frame []
   (html5
-   [:head
-    [:title "mu-puzzle - CLJS Single Page Web Application"]
+   [:html
+    [:head
+     (include-js "https://code.jquery.com/jquery-2.1.1.js")
+     (include-js "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js")
+     (include-css "//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css")]
 
-    [:script (brepl-js)]
+    (include-js "http://fb.me/react-0.11.1.js")
+     (include-js "/js/goog/base.js")
+     (include-js "/js/mu-puzzle.js")
     
-    (include-js "//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
-    (include-js "//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js")
-    (include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css")
-
-    (include-js "/js/mu-puzzle.js")]
-   [:body]))
+    [:body
+     [:div#mu-puzzle]
+     [:script {:type "text/javascript"} "goog.require('mu_puzzle.ui.app');"]]]))
 
 (defn app-routes []
   (routes
