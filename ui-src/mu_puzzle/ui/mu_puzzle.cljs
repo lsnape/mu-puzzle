@@ -26,3 +26,9 @@
        (map-indexed vector)
        (filter (comp #{(seq ss)} second))
        (map first)))
+
+(defn valid-chars [iii-indexes uu-indexes]
+  (-> (apply merge
+             (mapcat #(range % (+ % 3)) iii-indexes)
+             (mapcat #(range % (+ % 2)) uu-indexes))
+      set))
