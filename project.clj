@@ -4,69 +4,70 @@
   :url ""
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  
-  :dependencies [[org.clojure/clojure "1.7.0-alpha2"]
 
-                 [ring/ring-core "1.2.0"]
-                 [compojure "1.1.6"]
-                 [hiccup "1.0.5"]
-                 [medley "0.5.0"]
+  :source-paths ["src/clj" "src/cljs" "target/generated/clj" "target/generated/cljx"]
 
-                 [prismatic/om-tools "0.3.6"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [org.clojure/clojurescript "0.0-2371" :scope "provided"]
+                 [ring "1.3.1"]
+                 [compojure "1.2.0"]
+                 [enlive "1.1.5"]
+                 [om "0.7.3"]
                  [sablono "0.2.22"]
+                 [figwheel "0.1.4-SNAPSHOT"]
+                 [environ "1.0.0"]
+                 [com.cemerick/piggieback "0.1.3"]
+                 [weasel "0.4.0-SNAPSHOT"]
+                 [leiningen "2.5.0"]
+                 [http-kit "2.1.19"]
+                 [prismatic/om-tools "0.3.3"]]
 
-                 [org.clojure/clojurescript "0.0-2371"]
-                 [org.clojure/core.async "0.1.303.0-886421-alpha"]
-                 [om "0.8.0-alpha1"]]
+  :plugins [[lein-cljsbuild "1.0.3"]
+            [lein-environ "1.0.0"]]
 
-  :plugins [[jarohen/lein-frodo "0.3.2"]
-            [lein-cljsbuild "1.0.3"]
-            [lein-pdo "0.1.1"]
+  :min-lein-version "2.5.0"
 
-            [com.keminglabs/cljx "0.4.0"]
-            [lein-shell "0.4.0"]]
+  :uberjar-name "mu-puzzle.jar"
 
-  :frodo/config-resource "mu-puzzle-config.edn"
+  :cljsbuild {:builds {:app {:source-paths ["src/cljs" "target/generated/cljs"]
+                             :compiler {:output-to     "resources/public/js/app.js"
+                                        :output-dir    "resources/public/js/out"
+                                        :source-map    "resources/public/js/out.js.map"
+                                        :preamble      ["react/react.min.js"]
+                                        :externs       ["react/externs/react.js"]
+                                        :optimizations :none
+                                        :pretty-print  true}}}}
 
-  :source-paths ["src" "target/generated/clj"]
+  :profiles {:dev {:repl-options {:init-ns mu-puzzle.server
+                                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl
+                                                     cljx.repl-middleware/wrap-cljx]}
 
-  :resource-paths ["resources" "target/resources"]
+                   :plugins [[lein-figwheel "0.1.4-SNAPSHOT"]
+                             [com.keminglabs/cljx "0.4.0" :exclusions [org.clojure/clojure]]]
 
-  :cljx {:builds [{:source-paths ["common-src"]
-                   :output-path "target/generated/clj"
-                   :rules :clj}
+                   :figwheel {:http-server-root "public"
+                              :port 3449
+                              :css-dirs ["resources/public/css"]}
 
-                  {:source-paths ["common-src"]
-                   :output-path "target/generated/cljs"
-                   :rules :cljs}]}
+                   :env {:is-dev true}
 
-  :cljsbuild {:builds {:dev
-                       {:source-paths ["ui-src" "target/generated/cljs"]
-                        :compiler {:output-to "target/resources/js/mu-puzzle.js"
-                                   :output-dir "target/resources/js/"
-                                   :optimizations :none
-                                   :source-map "target/resources/js/mu-puzzle.js.map"
-                                   :pretty-print true}}
+                   :hooks [cljx.hooks]
 
-                       :prod
-                       {:source-paths ["ui-src" "target/generated/cljs"]
-                        :compiler {:output-to "target/resources/js/mu-puzzle.js"
-                                   :optimizations :advanced
-                                   :pretty-print false
-                                   :externs ["externs/jquery.js"]}}}}
+                   :cljx {:builds [{:source-paths ["src/cljx"]
+                                    :output-path "target/generated/clj"
+                                    :rules :clj}
+                                   {:source-paths ["src/cljx"]
+                                    :output-path "target/generated/cljs"
+                                    :rules :cljs}]}
 
-  :aliases {"dev" ["do"
-                   ["shell" "mkdir" "-p"
-                    "target/generated/clj"
-                    "target/generated/cljs"
-                    "target/resources"]
-                   ["cljx" "once"]
-                   ["pdo"
-                    ["cljx" "auto"]
-                    ["cljsbuild" "auto" "dev"]
-                    "frodo"]]
-            
-            "start" ["do"
-                     ["cljx" "once"]
-                     ["cljsbuild" "once" "prod"]
-                     ["trampoline" "frodo"]]})
+                   :cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]}}}}
+
+             :uberjar {:hooks [cljx.hooks leiningen.cljsbuild]
+                       :env {:production true}
+                       :omit-source true
+                       :aot :all
+                       :cljsbuild {:builds {:app
+                                            {:source-paths ["env/prod/cljs"]
+                                             :compiler
+                                             {:optimizations :advanced
+                                              :pretty-print false}}}}}})

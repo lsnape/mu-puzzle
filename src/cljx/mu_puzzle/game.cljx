@@ -1,4 +1,4 @@
-(ns mu-puzzle.ui.mu-puzzle
+(ns mu-puzzle.game
   (:require [clojure.string :as s]))
 
 (defn i->iu [string]
@@ -23,8 +23,7 @@
 (defn indexes-of [s ss]
   (->> s
        (partition (count ss) 1)
-       (map-indexed vector)
-       (filter (comp #{(seq ss)} second))
+       
        (map first)))
 
 (defn valid-chars [iii-indexes uu-indexes]
