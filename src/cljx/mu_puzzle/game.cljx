@@ -27,8 +27,6 @@
        (filter (comp #{(seq ss)} second))
        (map first)))
 
-(defn valid-chars [iii-indexes uu-indexes]
-  (-> (apply merge
-             (mapcat #(range % (+ % 3)) iii-indexes)
-             (mapcat #(range % (+ % 2)) uu-indexes))
+(defn substring-steps [start-indexes steps]
+  (-> (mapcat #(range % (+ % steps)) start-indexes)
       set))
