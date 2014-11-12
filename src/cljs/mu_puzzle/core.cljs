@@ -13,9 +13,6 @@
 (def !app-state
   (atom {:mu-string "MI"}))
 
-(def !app-history
-  (atom [(:mu-string @!app-state)]))
-
 (defcomponent mu-letter [{:keys [idx letter highlight?] :as mu-char} owner]
   (render-state [_ {:keys [mouse-event-ch]}]
     (html
@@ -96,8 +93,7 @@
           :copy (om/transact! app :mu-string game/copy)
           :i->iu (om/transact! app :mu-string game/i->iu)
           :default nil)
-
-        (swap! !app-history conj (:mu-string @!app-state))
+        
         (recur))))
 
   (render-state [_ {:keys [mu-event-ch]}]
