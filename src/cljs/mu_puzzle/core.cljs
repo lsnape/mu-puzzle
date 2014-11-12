@@ -16,10 +16,13 @@
 (def !app-history
   (atom [(:mu-string @!app-state)]))
 
-(defcomponent mu-letter [{:keys [idx letter] :as mu-char} owner]
+(defcomponent mu-letter [{:keys [idx letter highlight?] :as mu-char} owner]
   (render-state [_ {:keys [mouse-event-ch]}]
     (html
-     [:span {:style {:cursor "default"}
+     [:span {:style {:cursor "default"
+                     :background-color (if highlight?
+                                         "#eee")}
+             
              :on-mouse-over #(a/put! mouse-event-ch
                                      {:action :char-over
                                       :idx idx})}
@@ -39,11 +42,12 @@
   (will-mount [_]
     (go-loop []
       (let [{:keys [idx action]} (a/<! (om/get-state owner :mouse-event-ch))]
-        (prn idx action)
         (condp = action
           :focus (om/update! app :highlight? true)
           :unfocus (om/update! app :highlight? false)
-          :char-over (om/update! app :highlight (highlight-indexes (:mu-string @!app-state) idx))))
+          :char-over (om/update! app :highlights (-> (:mu-string @!app-state)
+                                                     (highlight-indexes idx))))
+        (om/refresh! owner))
       (recur)))
   
   (render-state [_ {:keys [mouse-event-ch]}]
@@ -54,9 +58,16 @@
           :on-mouse-over #(a/put! mouse-event-ch {:action :focus})
           :on-mouse-out #(a/put! mouse-event-ch {:action :unfocus})}
       
-      (om/build-all mu-letter
-                    (map-indexed (comp #(zipmap [:idx :letter] %) vector) mu-string)
-                    {:init-state {:mouse-event-ch mouse-event-ch}})])))
+      (let [{:keys [highlight? highlights]} @!app-state]
+        (om/build-all mu-letter
+                    
+                      (for [[idx letter] (map-indexed vector mu-string)]
+                        {:idx idx
+                         :letter letter
+                         :highlight? (and highlight?
+                                          (contains? highlights idx))})
+                       
+                      {:init-state {:mouse-event-ch mouse-event-ch}}))])))
 
 (defcomponent mu-buttons [_ owner]
   (render-state [_ {:keys [mu-event-ch]}]
