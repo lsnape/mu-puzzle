@@ -40,11 +40,10 @@
     (go-loop []
       (let [{:keys [idx action]} (a/<! (om/get-state owner :mouse-event-ch))]
         (condp = action
-          :focus (om/update! app :highlight? true)
-          :unfocus (om/update! app :highlight? false)
-          :char-over (om/update! app :highlights (-> (:mu-string @!app-state)
-                                                     (highlight-indexes idx))))
-        (om/refresh! owner))
+          :focus (om/set-state! owner :highlight? true)
+          :unfocus (om/set-state! owner :highlight? false)
+          :char-over (om/set-state! owner :highlights (-> (:mu-string @!app-state)
+                                                          (highlight-indexes idx)))))
       (recur)))
   
   (render-state [_ {:keys [mouse-event-ch]}]
@@ -55,7 +54,8 @@
           :on-mouse-over #(a/put! mouse-event-ch {:action :focus})
           :on-mouse-out #(a/put! mouse-event-ch {:action :unfocus})}
       
-      (let [{:keys [highlight? highlights]} @!app-state]
+      (let [{:keys [highlight? highlights]} (om/get-state owner)]
+        
         (om/build-all mu-letter
                     
                       (for [[idx letter] (map-indexed vector mu-string)]
