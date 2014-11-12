@@ -23,7 +23,8 @@
 (defn indexes-of [s ss]
   (->> s
        (partition (count ss) 1)
-       
+       (map-indexed vector)
+       (filter (comp #{(seq ss)} second))
        (map first)))
 
 (defn valid-chars [iii-indexes uu-indexes]
