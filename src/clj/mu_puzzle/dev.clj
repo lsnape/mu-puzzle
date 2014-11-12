@@ -12,6 +12,9 @@
      (set-attr :class "is-dev")
      (prepend (html [:script {:type "text/javascript" :src "/js/out/goog/base.js"}]))
      (prepend (html [:script {:type "text/javascript" :src "/react/react.js"}]))
+     (prepend (html [:script {:type "text/javascript" :src "https://code.jquery.com/jquery-2.1.1.js"}]))
+     (prepend (html [:script {:type "text/javascript" :src "//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"}]))
+     (prepend (html [:script {:type "text/css" :src "//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"}]))
      (append  (html [:script {:type "text/javascript"} "goog.require('mu_puzzle.dev')"]))))
 
 (defn browser-repl []
