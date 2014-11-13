@@ -28,7 +28,7 @@
 (defn iii->u [string idx]
   (replace-at string idx "III" "U"))
 
-(defn uuu-> [string idx]
+(defn uu-> [string idx]
   (replace-at string idx "UU" ""))
 
 (defn indexes-of [s ss]
