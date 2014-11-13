@@ -68,43 +68,55 @@
                        
                       {:init-state {:mouse-event-ch mouse-event-ch}}))])))
 
-(defcomponent mu-buttons [_ owner]
-  (render-state [_ {:keys [mu-event-ch]}]
+(defcomponent mu-buttons [cursor owner]
+  (init-state [_]
+    {:undo-ch (a/chan)})
+
+  (will-mount [_]
+    (let [{:keys [undo-ch !history]} (om/get-state owner)]
+      (go-loop []
+        (a/<! undo-ch)
+        (reset! !app-state (last @!history))
+        (swap! !history pop)
+        (recur))))
+  
+  (render-state [_ {:keys [mu-event-ch undo-ch !history]}]
     (html
      [:div
-      (for [[button-k button-text] {:copy "copy"
-                                    :i->iu "append U"
-                                    :undo "undo"}]
-        
-        [:button.btn.btn-default.btn-small
-         {:on-click (fn [_]
-                      (a/put! mu-event-ch {:action button-k}))}
-         
-         button-text])])))
+      [:button.btn.btn-default.btn-small {:on-click #(a/put! mu-event-ch {:action :copy})} "copy"]
+      [:button.btn.btn-default.btn-small {:on-click #(a/put! mu-event-ch {:action :i->iu})} "append U"]
+      [:button.btn.btn-default.btn-small {:on-click #(a/put! undo-ch :undo)
+                                          :disabled (not (seq @!history))} "undo"]])))
 
 (defcomponent mu-component [{:keys [mu-string] :as app} owner]
   (init-state [_]
-    {:mu-event-ch (a/chan)})
+    {:mu-event-ch (a/chan)
+     :!history (atom [])})
 
   (will-mount [_]
     (go-loop []
-      (let [mu-event-ch (om/get-state owner :mu-event-ch)
-            {:keys [action idx] :as event} (a/<! mu-event-ch)]
+      (let [{:keys [mu-event-ch !history]} (om/get-state owner)
+            {:keys [action idx] :as event} (a/<! mu-event-ch)
+
+            current-state @(om/state app)]
         
         (condp = action
           :copy (om/transact! app :mu-string game/copy)
           :i->iu (om/transact! app :mu-string game/i->iu)
           :iii->u (om/transact! app :mu-string game/iii->u)
-          :uu-> (om/transact! app :mu-string game/uu->)
-          :default nil)
+          :uu-> (om/transact! app :mu-string game/uu->))
+
+        (if-not (= current-state @(om/state app))
+          (swap! !history conj current-state))
         
         (recur))))
 
-  (render-state [_ {:keys [mu-event-ch]}]
+  (render-state [_ {:keys [mu-event-ch !history]}]
     (html
      [:div
       (om/build mu-letters app {:init-state {:mu-event-ch mu-event-ch}})
-      (om/build mu-buttons mu-string {:init-state {:mu-event-ch mu-event-ch}})])))
+      (om/build mu-buttons mu-string {:init-state {:mu-event-ch mu-event-ch
+                                                   :!history !history}})])))
 
 (defn main []
   (om/root
