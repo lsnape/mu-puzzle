@@ -22,7 +22,12 @@
              
              :on-mouse-over #(a/put! mouse-event-ch
                                      {:action :char-over
-                                      :idx idx})}
+                                      :idx idx})
+
+             :on-click #(when highlight?
+                          (a/put! mouse-event-ch
+                                  {:action :char-clicked
+                                   :idx idx}))}
       letter])))
 
 (defcomponent mu-letters [{:keys [mu-string] :as app} owner]
@@ -35,7 +40,11 @@
         (condp = action
           :focus (om/set-state! owner :highlight? true)
           :unfocus (om/set-state! owner :highlight? false)
-          :char-over (om/set-state! owner :highlights (game/idx->group (:mu-string @!app-state) idx))))
+          :char-over (om/set-state! owner :highlights (game/idx->group (:mu-string @!app-state) idx))
+          :char-clicked (om/transact! app :mu-string (fn [mu-string]
+                                                       (if (= (get mu-string idx) \I)
+                                                         (game/iii->u mu-string idx)
+                                                         (game/uu-> mu-string idx))))))
       (recur)))
   
   (render-state [_ {:keys [mouse-event-ch]}]
