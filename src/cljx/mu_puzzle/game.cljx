@@ -42,18 +42,20 @@
   (-> (mapcat #(range % (+ % steps)) start-indexes)
       set))
 
-(defn idx->group [mu-string idx]
-  (let [pattern (idx->pattern mu-string idx)
+(defn idx->group [mu-string pos]
+  (let [pattern (idx->pattern mu-string pos)
         pattern-length (count pattern)]
 
     (-> (for [[idx substring] (->> (partition pattern-length 1 mu-string)
                                    (map s/join)
                                    (map-indexed vector))
+
+              :let [idxs (->> (iterate inc idx)
+                              (take pattern-length)
+                              set)]
               
-              :when (= substring pattern)]
-          
-          (->> (iterate inc idx)
-               (take pattern-length)
-               set))
+              :when (and (= substring pattern)
+                         (contains? idxs pos))]
+          idxs)
 
         first)))
