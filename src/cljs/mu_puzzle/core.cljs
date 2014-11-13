@@ -25,13 +25,6 @@
                                       :idx idx})}
       letter])))
 
-(defn highlight-indexes [mu-string idx]
-  (let [letter (get mu-string idx)]
-    (when-let [pattern (get {"I" "III", "U" "UU"} letter)]
-      (-> mu-string
-          (game/indexes-of pattern)
-          (game/substring-steps (count pattern))))))
-
 (defcomponent mu-letters [{:keys [mu-string] :as app} owner]
   (init-state [_]
     {:mouse-event-ch (a/chan)})
@@ -42,8 +35,7 @@
         (condp = action
           :focus (om/set-state! owner :highlight? true)
           :unfocus (om/set-state! owner :highlight? false)
-          :char-over (om/set-state! owner :highlights (-> (:mu-string @!app-state)
-                                                          (highlight-indexes idx)))))
+          :char-over (om/set-state! owner :highlights (game/idx->group (:mu-string @!app-state) idx))))
       (recur)))
   
   (render-state [_ {:keys [mouse-event-ch]}]
