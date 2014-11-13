@@ -35,19 +35,20 @@
     {:mouse-event-ch (a/chan)})
 
   (will-mount [_]
-    (go-loop []
-      (let [{:keys [idx action]} (a/<! (om/get-state owner :mouse-event-ch))]
-        (condp = action
-          :focus (om/set-state! owner :highlight? true)
-          :unfocus (om/set-state! owner :highlight? false)
-          :char-over (om/set-state! owner :highlights (game/idx->group (:mu-string @!app-state) idx))
-          :char-clicked (om/transact! app :mu-string (fn [mu-string]
-                                                       (if (= (get mu-string idx) \I)
-                                                         (game/iii->u mu-string idx)
-                                                         (game/uu-> mu-string idx))))))
-      (recur)))
+    (let [{:keys [mu-event-ch]} (om/get-state owner)]
+      
+      (go-loop []
+        (let [{:keys [idx action]} (a/<! (om/get-state owner :mouse-event-ch))]
+          (condp = action
+            :focus (om/set-state! owner :highlight? true)
+            :unfocus (om/set-state! owner :highlight? false)
+            :char-over (om/set-state! owner :highlights (game/idx->group (:mu-string @!app-state) idx))
+            :char-clicked (a/put! mu-event-ch {:action (get {\I :iii->u, \U :uu->}
+                                                            (get (:mu-string @!app-state) idx))
+                                               :idx idx})))
+        (recur))))
   
-  (render-state [_ {:keys [mouse-event-ch]}]
+  (render-state [_ {:keys [mouse-event-ch] :as c}]
     (html
      [:p {:style {:text-align "center"
                   :margin "4em auto"}
@@ -77,7 +78,7 @@
         
         [:button.btn.btn-default.btn-small
          {:on-click (fn [_]
-                      (a/put! mu-event-ch button-k))}
+                      (a/put! mu-event-ch {:action button-k}))}
          
          button-text])])))
 
@@ -88,11 +89,13 @@
   (will-mount [_]
     (go-loop []
       (let [mu-event-ch (om/get-state owner :mu-event-ch)
-            event (a/<! mu-event-ch)]
+            {:keys [action idx] :as event} (a/<! mu-event-ch)]
         
-        (condp = event
+        (condp = action
           :copy (om/transact! app :mu-string game/copy)
           :i->iu (om/transact! app :mu-string game/i->iu)
+          :iii->u (om/transact! app :mu-string game/iii->u)
+          :uu-> (om/transact! app :mu-string game/uu->)
           :default nil)
         
         (recur))))
