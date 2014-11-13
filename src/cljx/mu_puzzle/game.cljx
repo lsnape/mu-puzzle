@@ -1,5 +1,16 @@
 (ns mu-puzzle.game
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s]
+            [medley.core :refer [filter-keys filter-vals]]))
+
+(defn idx->pattern [mu-string idx]
+  (let [letter (get mu-string idx)]
+    (get {\I "III", \U "UU"} letter)))
+
+(defn idx->range [mu-string idx]
+  (let [ss-length (-> mu-string (idx->pattern idx) count)]
+    (->> (range (- (inc idx) ss-length) (+ ss-length idx))
+         (remove neg?)
+         set)))
 
 (defn i->iu [string]
   (cond-> string
@@ -30,3 +41,19 @@
 (defn substring-steps [start-indexes steps]
   (-> (mapcat #(range % (+ % steps)) start-indexes)
       set))
+
+(defn idx->group [mu-string idx]
+  (let [pattern (idx->pattern mu-string idx)
+        pattern-length (count pattern)]
+
+    (-> (for [[idx substring] (->> (partition pattern-length 1 mu-string)
+                                   (map s/join)
+                                   (map-indexed vector))
+              
+              :when (= substring pattern)]
+          
+          (->> (iterate inc idx)
+               (take pattern-length)
+               set))
+
+        first)))
