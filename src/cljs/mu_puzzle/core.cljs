@@ -99,12 +99,12 @@
             {:keys [action idx] :as event} (a/<! mu-event-ch)
 
             current-state @(om/state app)]
-        
-        (condp = action
-          :copy (om/transact! app :mu-string game/copy)
-          :i->iu (om/transact! app :mu-string game/i->iu)
-          :iii->u (om/transact! app :mu-string game/iii->u)
-          :uu-> (om/transact! app :mu-string game/uu->))
+
+        (om/transact! app :mu-string (condp = action
+                                       :copy game/copy
+                                       :i->iu game/i->iu
+                                       :iii->u game/iii->u
+                                       :uu-> game/uu->))
 
         (if-not (= current-state @(om/state app))
           (swap! !history conj current-state))
