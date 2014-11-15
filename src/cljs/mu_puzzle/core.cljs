@@ -103,8 +103,8 @@
         (om/transact! app :mu-string (condp = action
                                        :copy game/copy
                                        :i->iu game/i->iu
-                                       :iii->u game/iii->u
-                                       :uu-> game/uu->))
+                                       :iii->u #(game/iii->u % idx)
+                                       :uu-> #(game/uu-> % idx)))
 
         (if-not (= current-state @(om/state app))
           (swap! !history conj current-state))
