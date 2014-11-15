@@ -58,4 +58,7 @@
                          (contains? idxs pos))]
           idxs)
 
-        first)))
+        (as-> matches
+          ;; offset by one if possible to center
+          (or (second matches)
+              (first matches))))))
