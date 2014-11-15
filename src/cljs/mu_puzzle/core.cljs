@@ -43,9 +43,17 @@
             :focus (om/set-state! owner :highlight? true)
             :unfocus (om/set-state! owner :highlight? false)
             :char-over (om/set-state! owner :highlights (game/idx->group (:mu-string @!app-state) idx))
-            :char-clicked (a/put! mu-event-ch {:action (get {\I :iii->u, \U :uu->}
-                                                            (get (:mu-string @(om/state app)) idx))
-                                               :idx idx})))
+            :char-clicked (let [first-idx (-> (:highlights (om/get-state owner))
+                                              sort
+                                              first)]
+                            
+                            (a/put! mu-event-ch {:action (-> (:mu-string @(om/state app))
+                                                             (get first-idx)
+                                                             (->> (get {\I :iii->u, \U :uu->})))
+                                               
+                                                 :idx first-idx})
+
+                            (om/set-state! owner :highlights nil))))
         (recur))))
   
   (render-state [_ {:keys [mouse-event-ch] :as c}]
