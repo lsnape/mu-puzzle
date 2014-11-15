@@ -44,7 +44,7 @@
             :unfocus (om/set-state! owner :highlight? false)
             :char-over (om/set-state! owner :highlights (game/idx->group (:mu-string @!app-state) idx))
             :char-clicked (a/put! mu-event-ch {:action (get {\I :iii->u, \U :uu->}
-                                                            (get (:mu-string @!app-state) idx))
+                                                            (get (:mu-string @(om/state app)) idx))
                                                :idx idx})))
         (recur))))
   
