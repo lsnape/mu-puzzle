@@ -1,74 +1,44 @@
 (defproject mu-puzzle ""
 
-  :description "A game based on Douglas Hofstadter's MU puzzle in GEB"
-  :url ""
+  :description "FIXME: write description"
+  :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  
+  :dependencies [[org.clojure/clojure "1.7.0-alpha4"]
 
-  :source-paths ["src/clj" "src/cljs" "target/generated/clj" "target/generated/cljx"]
+                 [ring/ring-core "1.3.0"]
+                 [bidi "1.12.0"]
+                 [hiccup "1.0.5"]
+                 [garden "1.2.1"]
+                 [ring-middleware-format "0.4.0"]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2371" :scope "provided"]
-                 [ring "1.3.1"]
-                 [compojure "1.2.0"]
-                 [enlive "1.1.5"]
-                 [om "0.7.3"]
-                 [sablono "0.2.22"]
-                 [figwheel "0.1.4-SNAPSHOT"]
-                 [environ "1.0.0"]
-                 [com.cemerick/piggieback "0.1.3"]
-                 [weasel "0.4.0-SNAPSHOT"]
-                 [leiningen "2.5.0"]
-                 [http-kit "2.1.19"]
-                 [prismatic/om-tools "0.3.3"]
-                 [medley "0.5.3"]]
+                 [jarohen/phoenix.modules.http-kit "0.1.0-SNAPSHOT"]
+                 [jarohen/phoenix.modules.cljs "0.1.0-SNAPSHOT"]
 
-  :plugins [[lein-cljsbuild "1.0.3"]
-            [lein-environ "1.0.0"]]
+                 [org.clojure/clojurescript "0.0-2511"]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [reagent "0.5.0-alpha"]
 
-  :min-lein-version "2.5.0"
+                 [org.clojure/tools.logging "0.3.1"]
+                 [org.slf4j/slf4j-api "1.7.9"]
+                 [org.apache.logging.log4j/log4j-slf4j-impl "2.1"]
+                 [org.apache.logging.log4j/log4j-core "2.1"]]
 
-  :uberjar-name "mu-puzzle.jar"
+  :exclusions [org.clojure/clojure]
 
-  :cljsbuild {:builds {:app {:source-paths ["src/cljs" "target/generated/cljs"]
-                             :compiler {:output-to     "resources/public/js/app.js"
-                                        :output-dir    "resources/public/js/out"
-                                        :source-map    "resources/public/js/out.js.map"
-                                        :preamble      ["react/react.min.js"]
-                                        :externs       ["react/externs/react.js"]
-                                        :optimizations :none
-                                        :pretty-print  true}}}}
+  :plugins [[jarohen/phoenix "0.1.0-SNAPSHOT"]
+            [jarohen/simple-brepl "0.1.2"]
+            [lein-shell "0.4.0"]]
 
-  :profiles {:dev {:repl-options {:init-ns mu-puzzle.server
-                                  :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl
-                                                     cljx.repl-middleware/wrap-cljx]}
+  :phoenix/config "mu-puzzle-config.edn"
 
-                   :plugins [[lein-figwheel "0.1.4-SNAPSHOT"]
-                             [com.keminglabs/cljx "0.4.0" :exclusions [org.clojure/clojure]]]
+  :resource-paths ["resources" "target/resources"]
 
-                   :figwheel {:http-server-root "public"
-                              :port 3449
-                              :css-dirs ["resources/public/css"]}
-
-                   :env {:is-dev true}
-
-                   :hooks [cljx.hooks]
-
-                   :cljx {:builds [{:source-paths ["src/cljx"]
-                                    :output-path "target/generated/clj"
-                                    :rules :clj}
-                                   {:source-paths ["src/cljx"]
-                                    :output-path "target/generated/cljs"
-                                    :rules :cljs}]}
-
-                   :cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]}}}}
-
-             :uberjar {:hooks [cljx.hooks leiningen.cljsbuild]
-                       :env {:production true}
-                       :omit-source true
-                       :aot :all
-                       :cljsbuild {:builds {:app
-                                            {:source-paths ["env/prod/cljs"]
-                                             :compiler
-                                             {:optimizations :advanced
-                                              :pretty-print false}}}}}})
+  :aliases {"dev" ["do"
+                   ["shell" "mkdir" "-p"
+                    "target/resources"]
+                   
+                   "phoenix"]
+            
+            "start" ["trampoline" "phoenix"]})
