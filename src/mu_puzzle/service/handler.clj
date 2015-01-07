@@ -1,47 +1,17 @@
 (ns mu-puzzle.service.handler
   (:require [mu-puzzle.service.css :as css]
-            [bidi.bidi :as bidi]
+            [mu-puzzle.service.routes :as routes]
+            [mu-puzzle.service.page-frame :refer [page-handler]]
+            [modular.ring :refer [WebRequestHandler]]
             [bidi.ring :refer [make-handler]]
             [com.stuartsierra.component :refer [Lifecycle]]
-            [hiccup.page :refer [html5 include-css include-js]]
-            [modular.ring :refer [WebRequestHandler]]
-            [phoenix.modules.cljs :as cljs]
             [ring.util.response :refer [response content-type]]))
-
-;; This is all in one NS for now, but you'll likely want to split it
-;; out when your webapp grows!
-
-(def site-routes
-  ["" {"/" {:get ::page-handler}
-       "/css" {"/site.css" {:get ::site-css}}}])
-
-(defn page-handler [cljs-compiler]
-  (fn [req]
-    (-> (response
-         (html5
-          [:head
-           [:title "MIU!"]
-
-           (include-js "http://fb.me/react-0.12.1.js")
-           (include-js "//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
-           (include-js "//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js")
-           (include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css")
-
-           (include-js (get-in (cljs/compiler-settings cljs-compiler) [:modules :main]))
-           (include-css (bidi/path-for site-routes ::site-css :request-method :get))]
-    
-          [:body]))
-
-        (content-type "text/html"))))
 
 (defn site-handlers [cljs-compiler]
   {::page-handler (page-handler cljs-compiler)
    ::site-css (fn [req]
                 (-> (response (css/site-css))
                     (content-type "text/css")))})
-
-(def api-routes
-  ["/api" {}])
 
 (defn api-handlers []
   {})
@@ -53,8 +23,8 @@
 
   WebRequestHandler
   (request-handler [{:keys [db cljs-compiler]}]
-    (make-handler ["" [site-routes
-                       api-routes
+    (make-handler ["" [routes/site-routes
+                       routes/api-routes
                        
                        (let [{:keys [web-context-path resource-prefix]} cljs-compiler]
                          [web-context-path (bidi.ring/resources {:prefix resource-prefix})])]]
