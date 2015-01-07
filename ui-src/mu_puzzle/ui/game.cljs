@@ -1,4 +1,4 @@
-(ns mu-puzzle.game
+(ns mu-puzzle.ui.game
   (:require [clojure.string :as s]
             [medley.core :refer [filter-keys filter-vals]]))
 
