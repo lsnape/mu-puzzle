@@ -10,9 +10,6 @@
 
 (enable-console-print!)
 
-(def !app-state
-  (atom {:mu-string "MI"}))
-
 (defcomponent mu-letter [{:keys [idx letter highlight?] :as mu-char} owner]
   (render-state [_ {:keys [mouse-event-ch]}]
     (html
@@ -127,14 +124,15 @@
                                                    :!history !history}})])))
 
 (defn main []
-  (om/root
-      (fn [app owner]
-        (reify
-          om/IRender
-          (render [_]
-            (html
-             [:div.container
-              [:h1 "MU Puzzle"
-               (om/build mu-component app)]]))))
-    !app-state
-    {:target (. js/document (getElementById "app"))}))
+  (let [!app-state (atom {:mu-string "MIU"})]
+    (om/root
+        (fn [app owner]
+          (reify
+            om/IRender
+            (render [_]
+              (html
+               [:div.container
+                [:h1 "MU Puzzle"
+                 (om/build mu-component app)]]))))
+      !app-state
+      {:target (. js/document (getElementById "app"))})))
