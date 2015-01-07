@@ -1,5 +1,5 @@
 (ns mu-puzzle.service.page-frame
-  (:require [mu-puzzle.service.routes :as routes]
+  (:require [mu-puzzle.service.routes :refer [site-routes]]
             [mu-puzzle.service.css :as css]
             [bidi.bidi :as bidi]
             [hiccup.page :refer [html5 include-css include-js]]
@@ -19,7 +19,7 @@
            (include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css")
 
            (include-js (get-in (cljs/compiler-settings cljs-compiler) [:modules :main]))
-           (include-css (bidi/path-for routes/site-routes ::site-css :request-method :get))]
+           (include-css (bidi/path-for site-routes :site-css :request-method :get))]
     
           [:body]))
 
