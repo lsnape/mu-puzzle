@@ -1,0 +1,17 @@
+{:phoenix/nrepl-port 7888
+
+ :web-handler {::component mu-puzzle.service.handler/map->AppHandler
+               :cljs-compiler ::dep}
+
+ :server {::component phoenix.modules.http-kit/make-web-server
+          :handler [::dep :web-handler]
+          :port 3000}
+
+ :cljs-compiler {::component phoenix.modules.cljs/make-cljs-compiler
+                 :modules [{:name :main
+                            :mains #{'mu-puzzle.ui.app}
+                            :dependencies nil}]
+                 :source-path "ui-src"
+                 :web-context-path "/js"
+                 :resource-prefix "js"
+                 :output-dir "target/resources/js/"}}
