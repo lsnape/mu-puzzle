@@ -1,6 +1,5 @@
 (ns mu-puzzle.ui.app
-  (:require [mu-puzzle.ui.util :refer [on]]
-            [mu-puzzle.ui.game :as game]
+  (:require [mu-puzzle.ui.game :as game]
             [clojure.string :as s]
             [reagent.core :as reagent :refer [atom]]
             simple-brepl.client)
