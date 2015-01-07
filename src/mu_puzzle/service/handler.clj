@@ -20,8 +20,9 @@
     (-> (response
          (html5
           [:head
-           [:title "mu-puzzle - CLJS Single Page Web Application"]
-     
+           [:title "MIU!"]
+
+           (include-js "http://fb.me/react-0.12.1.js")
            (include-js "//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
            (include-js "//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js")
            (include-css "//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css")
