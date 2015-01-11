@@ -33,15 +33,17 @@
                     (contains? idx))]
 
     [:span.miu-ch {:style {:background-color (when marked?
-                                               :blue)}
+                                               "rgba(94, 177, 19, 0.28)")}
 
                    :on-mouse-over (fn [e]
                                     (a/put! char-ch {:action ::char-over, :idx idx})
+                                    (.preventDefault e)
                                     (.stopPropagation e))
                  
                    :on-click (fn [e]
-                               (a/put! char-ch {:action ::char-clicked, :idx idx})
-                               (.stopPropagation e))}
+                               (.preventDefault e)
+                               (.stopPropagation e)
+                               (a/put! char-ch {:action ::char-clicked, :idx idx}))}
      miu-char]))
 
 (defn render-miu-component [!miu-state game-ch]
@@ -51,9 +53,9 @@
         char-event-ch (doto (a/chan)
                         (handle-char-events! game-ch !miu-state))]
     (fn []
-      [:div {:on-mouse-out (fn [e]
-                             (a/put! char-event-ch {:action ::mouse-out})
-                             (.stopPropagation e))}
+      [:div.miu-string {:on-mouse-out (fn [e]
+                                        (a/put! char-event-ch {:action ::mouse-out})
+                                        (.stopPropagation e))}
        
        (for [[idx miu-char] (map-indexed vector (:miu-string @!miu-state))]
          ^{:key idx} [render-miu-char {:idx idx, :miu-char miu-char} !miu-state char-event-ch])])))
@@ -65,9 +67,9 @@
                                ::undo "undo"}]
      
      ^{:key action} [:div.miu-buttons
-                     [:button.btn.btn-default {:on-click (fn [e]
-                                                           (a/put! game-ch {:action action})
-                                                           (.stopPropagation e))}
+                     [:button.btn.btn-default.btn-lg {:on-click (fn [e]
+                                                                  (a/put! game-ch {:action action})
+                                                                  (.stopPropagation e))}
                       button-name]])])
 
 (defn update-miu-string [action idx]
@@ -105,8 +107,8 @@
     
     (fn []
       [:div.miu-component
-       [render-miu-component !miu-state game-ch]
-       [render-buttons game-ch]])))
+       [render-buttons game-ch]
+       [render-miu-component !miu-state game-ch]])))
 
 (set! (.-onload js/window)
       (fn []
