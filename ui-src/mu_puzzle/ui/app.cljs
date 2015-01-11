@@ -2,40 +2,43 @@
   (:require [mu-puzzle.ui.game :as game]
             [clojure.string :as s]
             [cljs.core.async :as a]
-            [reagent.core :as reagent :refer [atom]]
+            [reagent.core :as reagent :refer [atom wrap]]
             [medley.core :refer [update]]
             simple-brepl.client)
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
 
-(defn render-miu-char [miu-char game-ch char-event-ch]
-  [:span.miu-ch {:on-mouse-over (fn [e]
-                                  (a/put! game-ch {:action ::char-over})
-                                  (.stopPropagation e))
-                 
-                 :on-click (fn [e]
-                             (a/put! game-ch {:action ::char-clicked})
-                             (.stopPropagation e))}
-   miu-char])
-
-(defn handle-char-events! [char-event-ch game-ch !char-state]
+(defn handle-char-events! [char-ch game-ch !miu-state]
   (go-loop []
-    (let [{:keys [action idx]} (a/<! char-event-ch)]
+    (let [{:keys [action idx]} (a/<! char-ch)]
       (cond
-        (= action ::char-over) (prn "char over")
-        (= action ::char-clicked) (prn "char clicked")))
+        (= action ::char-over) (prn "over" idx)
+        (= action ::char-clicked) (prn "clicked" idx)))
 
     (recur)))
 
+(defn render-miu-char [{:keys [miu-char idx]} !miu-state char-ch]
+  [:span.miu-ch {:on-mouse-over (fn [e]
+                                  (a/put! char-ch {:action ::char-over, :idx idx})
+                                  (.stopPropagation e))
+                 
+                 :on-click (fn [e]
+                             (a/put! char-ch {:action ::char-clicked, :idx idx})
+                             (.stopPropagation e))}
+   miu-char])
+
 (defn render-miu-component [!miu-state game-ch]
-  
-  (let [char-event-ch (doto (a/chan)
-                        (handle-char-events! game-ch (atom nil)))]
+  (let [!char-state (-> (:highlights @!miu-state)
+                        (wrap swap! !miu-state assoc :highlights))
+
+        char-event-ch (doto (a/chan)
+                        (handle-char-events! game-ch !char-state))]
     (fn []
       [:div
        (for [[idx miu-char] (map-indexed vector (:miu-string @!miu-state))]
-         ^{:key idx} [render-miu-char miu-char char-event-ch])])))
+         
+         ^{:key idx} [render-miu-char {:idx idx, :miu-char miu-char} !char-state char-event-ch])])))
 
 (defn render-buttons [game-ch]
   [:div.miu-buttons-outer
